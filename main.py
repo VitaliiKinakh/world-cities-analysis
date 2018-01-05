@@ -102,7 +102,7 @@ def create_plot(df, col, name, n_bins, y_tic, x_tic):
 if __name__ == "__main__":
     # Variable for storing results
     results = {}
-
+    #
     world_cities_db_with_area = gpd.read_file("cities.shp")
     print("Total cities:", len(world_cities_db_with_area))
 
@@ -179,11 +179,6 @@ if __name__ == "__main__":
         create_plot(world_cities_db_with_area_filter, "AREA", "population_larger_" + str(number), 30, "n cities", r'$\mathregular{km^2}$')
         create_plot(world_cities_db_with_area_filter, "Density", "population_larger_" + str(number), 30, "n cities", "Density")
 
-
-    results_df = pd.DataFrame(results)
-
-    results_df.to_json("results.json")
-
     # Next step is to rasterise world cities and then polygonolize back
     # So now we have cities polygons and ready to go
     world_cities_db_from_raster = gpd.read_file("city_boundaries_from_raster/city_boundaries_from_raster.shp")
@@ -195,6 +190,28 @@ if __name__ == "__main__":
     # Create plot for this data
     create_plot(world_cities_db_from_raster, "AREA", "world area analysis after raster convertion", 30, "n cities", r'$\mathregular{km^2}$')
 
+    # Calculate sum of cities area in both dataframes and compare it
+    sum_world_cities_db_with_area = world_cities_db_with_area["AREA"].sum()
+    sum_world_cities_db_from_raster = world_cities_db_from_raster["AREA"].sum()
+
+    print("Sum of cities areas in original dataframe:", sum_world_cities_db_with_area)
+    print("Sum of cities areas after raster convertion:", sum_world_cities_db_from_raster)
+
+    # Calc difference
+    if sum_world_cities_db_with_area > sum_world_cities_db_from_raster:
+        print("Original dataframe sum if bigger")
+        diff = sum_world_cities_db_with_area - sum_world_cities_db_from_raster
+        print("Difference:", diff)
+        results["Difference"] = diff
+    else:
+        print("Dataframe after raster convertion is bigger")
+        diff = sum_world_cities_db_from_raster - sum_world_cities_db_with_area
+        print("Difference:", diff)
+        results["Difference"] = diff
+
+
+    results_df = pd.DataFrame(results)
+    results_df.to_json("results.json")
 
 
 

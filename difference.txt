@@ -1,0 +1,4 @@
+Sum of cities areas in original dataframe: 549906.1565657909
+Sum of cities areas after raster convertion: 550190.5705437361
+Dataframe after raster convertion is bigger
+Difference: 284.41397794522345
