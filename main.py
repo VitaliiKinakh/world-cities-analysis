@@ -8,7 +8,7 @@ from matplotlib.ticker import FormatStrFormatter
 
 continents = ["Europe", "Asia", "Africa", "Australia", "North_America", "South_America"]
 
-population_ranges = [100000, 500000, 1000000]
+population_ranges = [0, 100000, 500000, 1000000]
 
 def get_country_codes():
     europe_iso_countries = pd.read_html("https://www.countrycallingcodes.com/iso-country-codes/europe-codes.php")[1][1]
@@ -104,6 +104,8 @@ if __name__ == "__main__":
     results = {}
 
     world_cities_db_with_area = gpd.read_file("cities.shp")
+    print("Total cities:", len(world_cities_db_with_area))
+
     world_cities_db_with_population = pd.read_csv("worldcitiespop.txt", encoding = "ISO-8859-1")
 
     # Get cities area
@@ -143,6 +145,7 @@ if __name__ == "__main__":
         # Create db with population in specific continent and apply analysis
         continent_cities_with_population = pd.merge(world_cities_db_with_population, continent_iso_codes, how="inner", on=["Country"])
         continent_population_statistics = basic_statistic_values(continent_cities_with_population["Population"])
+        print(continent,len(continent_cities_with_population))
 
         # Create db with area in specific continent and apply analysis
         continent_cities_with_area = pd.merge(world_cities_db_with_area, continent_iso_codes, how="inner", on=["Country"])
@@ -179,7 +182,18 @@ if __name__ == "__main__":
 
     results_df = pd.DataFrame(results)
 
-    # results_df.to_json("results.json")
+    results_df.to_json("results.json")
+
+    # Next step is to rasterise world cities and then polygonolize back
+    # So now we have cities polygons and ready to go
+    world_cities_db_from_raster = gpd.read_file("city_boundaries_from_raster/city_boundaries_from_raster.shp")
+
+    # Add area to this dataframe
+    world_cities_db_from_raster = world_cities_db_from_raster.to_crs({'init': 'epsg:3857'})
+    world_cities_db_from_raster["AREA"] = world_cities_db_from_raster["geometry"].area/ 10**6 # in km
+
+    # Create plot for this data
+    create_plot(world_cities_db_from_raster, "AREA", "world area analysis after raster convertion", 30, "n cities", r'$\mathregular{km^2}$')
 
 
 
