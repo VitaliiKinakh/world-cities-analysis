@@ -10,6 +10,8 @@ continents = ["Europe", "Asia", "Africa", "Australia", "North_America", "South_A
 
 population_ranges = [0, 100000, 500000, 1000000]
 
+hist_values = []
+
 def get_country_codes():
     europe_iso_countries = pd.read_html("https://www.countrycallingcodes.com/iso-country-codes/europe-codes.php")[1][1]
     europe_iso_countries.dropna(inplace=True)
@@ -86,6 +88,8 @@ def create_plot(df, col, name, n_bins, y_tic, x_tic):
 
     # Create second plot
     n2, bins2, pathes = ax2.hist(second_df, bins=b, histtype="bar", rwidth=0.8)
+
+    hist_values.append({"Name" : name + "_" + col, "Bins1" : bins1, "Numbers1" : n1, "Bins2" : bins2, "Numbers2" : n2})
 
     # Visualisation
     ax2.set_ylabel(y_tic)
@@ -212,6 +216,10 @@ if __name__ == "__main__":
 
     results_df = pd.DataFrame(results)
     results_df.to_json("results.json")
+
+    hist_values = pd.DataFrame(hist_values)
+    hist_values.to_csv("hist_value.csv")
+
 
 
 
